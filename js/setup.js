@@ -236,19 +236,21 @@ function getPreferences() {
 	if (localStorage.getItem("word_length"+ bot.type)) {
 		word_length = localStorage.getItem("word_length"+ bot.type);
 	}
-
-	if (URLParams.has("ultra")) {
-		document.getElementById("ultra").checked = true;
-		difficulty = "ultra";
-	} else if (URLParams.has("hard")) {
-		let hard_mode = getHardMode();
-		hard_mode.checked = true;
-		difficulty = hard_mode.id;
-	} else if (URLParams.has("easy")) {
-		document.getElementById("easy").checked = true;
-		difficulty = "easy";
-	} else {
-		document.getElementById(difficulty).checked = true;
+	if (URLParams) {
+		if (URLParams.has("ultra")) {
+			document.getElementById("ultra").checked = true;
+			difficulty = "ultra";
+		} else if (URLParams.has("hard")) {
+			let hard_mode = getHardMode();
+			hard_mode.checked = true;
+			difficulty = hard_mode.id;
+		} else if (URLParams.has("easy")) {
+			document.getElementById("easy").checked = true;
+			difficulty = "easy";
+		} else {
+			document.getElementById(difficulty).checked = true;
+		}
+		URLParams = false;
 	}
 }
 

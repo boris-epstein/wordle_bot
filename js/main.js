@@ -27,7 +27,7 @@ const NO_WORDS_LEFT_MESSAGE = "it doesn't look like we have this word. double ch
 const LOCAL_VERSION = (window.location.protocol == "file:");
 const FULL_TREES = (typeof best_trees_full != "undefined");
 const SHORT_TREES = (typeof best_trees_short != "undefined");
-const URLParams = new URLSearchParams(Array.from(new URLSearchParams(window.location.search), ([key, value]) => [key.toLowerCase(), value]));
+let URLParams = new URLSearchParams(Array.from(new URLSearchParams(window.location.search), ([key, value]) => [key.toLowerCase(), value]));
 const CHECK_SIZE = Number(URLParams.get("check")) || 50;
 const MAX_TIME = Number(URLParams.get("time")) || 1000;
 const MAXIMUM = Number(URLParams.get("max")) || 100000;
@@ -998,7 +998,7 @@ function getWord(number) {
 	finds the color difference between two words
 */
 function makeGuessHash(guess_count = guessesMadeSoFar()) {
-	let guesses_hash = "";
+	let guesses_hash = word_length.toString();
 	// if (bot.isFor(WORDLE) && HASH_TEST) {
 		// let word, diff, current_incorrect, current_wrong_spot, current_correct, current_char;
 		// let finished = [];
