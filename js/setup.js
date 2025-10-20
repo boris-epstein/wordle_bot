@@ -247,6 +247,8 @@ function getPreferences() {
 	} else if (URLParams.has("easy")) {
 		document.getElementById("easy").checked = true;
 		difficulty = "easy";
+	} else {
+		document.getElementById(difficulty).checked = true;
 	}
 }
 
@@ -460,11 +462,6 @@ function createWrongExample() {
 	return example_wrong;
 }
 
-function makeCloseButton(type) {
-	let close_button = createElement("button", "", type + " close");
-	return close_button;
-}
-
 function createInfoParagraphs() {
 	let p1 = createElement("p", `Simply enter in your guesses, click on the tiles until the colors match, hit calculate,
 								and the WordleBot will give you the best possible guesses from that point.`);
@@ -506,11 +503,28 @@ function explainExample() {
 	return explanation;
 }
 
-function createInfoPage() {
-	let info = document.getElementsByClassName("info screen")[0];
-	if (info.classList.contains("display")) return;
+function hideDropdownLists() {
+	for (const elems of document.getElementsByClassName("losingscore")) {
+		for (const elem of elems.children) elem.style.display = "none";
+	}
+	for (const elems of document.getElementsByClassName("showlist")) {
+		for (const elem of elems.children) elem.style.display = "none";
+	}
+}
 
-	let close_button = makeCloseButton("info");
+function createInfoPage() {
+	hideDropdownLists();
+	document.getElementById("settings-screen").style.display = "none";
+	let info = document.getElementById("info-screen");
+	if (info.classList.contains("display")) {
+		document.getElementById("header-bot-button").disabled = false;
+		info.classList.remove("display");
+		clearHTML(info);
+		return;
+	}
+	document.getElementById("header-bot-button").disabled = true;
+
+	let close_button = createElement("button", "", "info close");
 	let example = createExample();
 	let explanation = explainExample();
 	// let example_wrong = createWrongExample();
@@ -531,27 +545,34 @@ function createInfoPage() {
 	info.append(paragraphs[2]);  // explanation of wrong %
 	info.append(paragraphs[3]);  // bot paragraph
 
-	info.classList.remove("back");
+	// info.classList.remove("back");
 	info.classList.add("display");
 
-	close_button.addEventListener("click", function() {
-		info.classList.remove("display");
-		info.classList.add("back");
-		clearHTML(info);
-	});
+	close_button.addEventListener("click", createInfoPage);
 }
 
 function createSettingsPage() {
-	let settings = document.getElementsByClassName("settings screen")[0];
+	hideDropdownLists();
+	document.getElementById("info-screen").classList.remove("display");
+	clearHTML(document.getElementById("info-screen"));
+	let settings = document.getElementById("settings-screen");
+	if (settings.style.display == "none") {
+		settings.style.display = "";
+		document.getElementById("header-bot-button").disabled = true;
+	} else {
+		settings.style.display = "none";
+		document.getElementById("header-bot-button").disabled = false;
+	}
 
-	settings.classList.remove("hide");
-	settings.classList.add("display");
+/* 	settings.classList.remove("hide");
+	settings.classList.add("display"); */
 
-	let close = settings.getElementsByClassName("close")[0];
-	close.addEventListener("click", function() {
-		settings.classList.remove("display");
-		settings.classList.add("hide");
-	});
+	// let close_button = document.getElementById("settings-close-button");
+	// close_button.addEventListener("click", function() {
+		// settings.style.display = "none";
+// /* 		settings.classList.remove("display");
+		// settings.classList.add("hide"); */
+	// });
 }
 
 function createKnownAnswerInput(div) {

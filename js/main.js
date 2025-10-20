@@ -288,7 +288,7 @@ function update() {
 			}
 			if (PREVCALC && (old_guess_count > 0) && (!guess_stats || (guess_stats.length == 0))) {
 				if (DEBUG) console.log("calculating score for guess " + (old_guess_count+1) + ":" + user_guess);
-				guess_stats = getBestGuesses(old_list, old_guess_count, false, [user_guess]);
+				guess_stats = getBestGuesses(old_list, old_guess_count, [user_guess]);
 				if (((difficulty == "easy") && guessable.includes(guess_stats[0].word)) || ((difficulty == "hard") && bot.hasHardMode && old_list.hard_guesses.includes(guess_stats[0].word)) || ((difficulty == "ultra") && old_list.all.includes(guess_stats[0].word))) {
 					if (old_guess_stats) {
 						old_guess_stats.push(guess_stats[0]);
@@ -301,11 +301,7 @@ function update() {
 			}
 		}
 		if (guess_stats && (guess_stats.length > 0)) {
-			if (notFullyTested(guess_stats[0])) {
-				if (PREVCALC) {
-					addendum = "Your score for the guess " + guess_stats[0].word + " was not fully tested.<br>";
-				}
-			} else {
+			if (!notFullyTested(guess_stats[0])) {
 				addendum = "Your score for the guess " + guess_stats[0].word + " was " + getDataFor(guess_stats[0], old_list.unique) + ".<br>";
 				if (guess_stats[0].wrong_answers && (guess_stats[0].wrong_answers.length > 0)) {
 					addendum += "Might lose on: " + guess_stats[0].wrong_answers.join(", ") +  ".<br>";
@@ -1238,9 +1234,11 @@ function getBestTree(guess_count = guessesMadeSoFar(), word) {
 	return {word: best_guess, average: (browse_tree[best_guess].s)};
 }
 
-function getBestGuesses(lists, guess_count = guessesMadeSoFar(), main_calculations = true, initial_guesses) {
+function getBestGuesses(lists, guess_count = guessesMadeSoFar(), initial_guesses) {
+	const main_calculations = (initial_guesses === undefined);
 	let best_guesses;
-	let guess_list = lists.guesses;
+	let guess_list = (guess_count == bot.guessesAllowed()-1)? lists.unique: lists.guesses;
+
 	if (main_calculations) {
 		guess_hash = makeGuessHash(guess_count);
 		best_guesses = guessesArePrecomputed(guess_count, guess_hash);
@@ -1255,26 +1253,20 @@ function getBestGuesses(lists, guess_count = guessesMadeSoFar(), main_calculatio
 				return best_guesses;
 			}
 		}
-	}
-	if (lists.answers.length > 1000 + CHECK_SIZE) {
-		best_guesses = getTempList(guess_list, lists.answers);
-		if (USE_TREES && main_calculations) {
-			let best_guess = getBestTree(guess_count);
-			if (best_guess) {
-				if (!DEBUG) best_guesses = best_guesses.filter((a) => (a.word != best_guess.word));
-				best_guesses.unshift(best_guess);
+		if (lists.answers.length > 1000 + CHECK_SIZE) {
+			best_guesses = getTempList(guess_list, lists.answers);
+			if (USE_TREES && main_calculations) {
+				let best_guess = getBestTree(guess_count);
+				if (best_guess) {
+					if (!DEBUG) best_guesses = best_guesses.filter((a) => (a.word != best_guess.word));
+					best_guesses.unshift(best_guess);
+				}
 			}
+			return best_guesses;
 		}
-		return best_guesses;
-	}
-
-	if (guess_count == bot.guessesAllowed()-1) {
-		guess_list = lists.unique;
-	}
-
-	if (initial_guesses === undefined) {
 		initial_guesses = guess_list;
 	}
+
 	initial_guesses = bot.reducesListBest(lists.answers, initial_guesses);
 
 	if (bot.hasScore()) {

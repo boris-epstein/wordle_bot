@@ -55,10 +55,12 @@ function removeTest(animating) {
 	document.getElementById("results")?.remove();
 
 	clearGrids();
-	document.getElementById("word-entered").disabled = false;
-	document.getElementById("word-entered").disabled = false;
-	document.getElementsByClassName("info")[0].disabled = false;
-	document.getElementsByClassName("test")[0].disabled = false;
+	update();
+	document.getElementById("known-answer-div").style.display = "";
+	document.getElementById("guesses").style.display = "";
+	document.getElementById("header-info-button").style.display = "";
+	document.getElementById("header-settings-button").style.display = "";
+	// document.getElementsByClassName("test")[0].disabled = false;
 	document.getElementById("suggestions").classList.remove("testing");
 }
 
@@ -97,9 +99,11 @@ function addBar(test_center, guess_number) {
 }
 
 function removeNonBotElements() {
-	document.getElementById("word-entered").disabled = true;
-	document.getElementsByClassName("info")[0].disabled = true;
-	document.getElementsByClassName("test")[0].disabled = true;
+	document.getElementById("known-answer-div").style.display = "none";
+	document.getElementById("guesses").style.display = "none";
+	document.getElementById("header-info-button").style.display = "none";
+	document.getElementById("header-settings-button").style.display = "none";
+	// document.getElementsByClassName("test")[0].disabled = true;
 	clearGrids();
 
 	document.getElementsByClassName("current")[0].appendChild(
@@ -143,30 +147,33 @@ function getTestSize() {
 	return Math.min(TEST_BOT_SIZE, common.length);
 }
 
-function setupTest(word) {
+function setupTest() {
+	if (document.getElementById("suggestions").classList.contains("testing")) {
+		pairings = [];
+		resetGuessRows();
+		removeTest();
+		return;
+	}
+
 	if (!bot.hasScore()) {
 		return;
 	}
 
+	document.getElementById("suggestions").classList.add("testing");
 	TEST_SIZE = getTestSize();
 
 	let number_of_bars = bot.guessesAllowed() == INFINITY ? 6 : bot.guessesAllowed();
 	let test_center = createBarGraphs(number_of_bars);
-	let menu = createBotMenu(word);
+	let menu = createBotMenu();
 	test_center.appendChild(menu);
 
 	let input = document.getElementById("testword");
 	input.focus();
 	input.select();
 
-	removeNonBotElements(word);
-	document.getElementById("suggestions").classList.add("testing");
+	removeNonBotElements();
 
-	test_center.getElementsByClassName("close")[0].addEventListener("click", function() {
-		pairings = [];
-		resetGuessRows();
-		removeTest();
-	});
+	test_center.getElementsByClassName("close")[0].addEventListener("click", setupTest);
 
 	document.getElementsByClassName("bot")[0].addEventListener("click", function() {
 		let word = document.getElementById("testword").value;

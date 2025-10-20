@@ -36,15 +36,15 @@
 	<div id="container">
 		<div id="top-of-screen">
 			<h1 id = "title"></h1>
-			<button class="header-button test" onclick="setupTest();"><i class="gg-bot"></i></button>
-			<button class = "header-button open settings" onclick="createSettingsPage();"><i class="fa fa-gear"></i></button>
-			<button class="header-button open info" onclick="createInfoPage();"><i class="fa fa-info-circle"></i></button>
+			<button class="header-button test" onclick="setupTest();" id="header-bot-button"><i class="gg-bot"></i></button>
+			<button class = "header-button open settings" onclick="createSettingsPage();" id="header-settings-button"><i class="fa fa-gear"></i></button>
+			<button class="header-button open info" onclick="createInfoPage();" id="header-info-button"><i class="fa fa-info-circle"></i></button>
 			<!-- <button id="wordlebot" onclick="testStartingWords();">Run bot</button> -->
 		</div>
 
-		<div class="info screen"></div>
+		<div class="info screen" id="info-screen"></div>
 
-		<div class="settings screen">
+		<div class="settings screen display" id="settings-screen" style="display: none">
 			<h3 class="mini-header">Choose Your Bot</h3>
 			<p class="description">Which game are we playing? I can play several.</p>
 				<p id="bot-selector">
@@ -67,7 +67,7 @@
 					</select>
 				</p>
 
-			<button class="settings close"></button>
+			<button class="settings close" onclick="createSettingsPage();" "settings-close-button"></button>
 			<h3 class = "mini-header">Choose Your Wordlength</h3>
 			<p class="description">We don't have to stick with 5 letters.</p>
 			<p>
