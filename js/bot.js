@@ -60,7 +60,7 @@ function removeTest(animating) {
 	document.getElementById("guesses").style.display = "";
 	document.getElementById("header-info-button").style.display = "";
 	document.getElementById("header-settings-button").style.display = "";
-	// document.getElementsByClassName("test")[0].disabled = false;
+	document.getElementById("header-bot-button").disabled = false;
 	document.getElementById("suggestions").classList.remove("testing");
 }
 
@@ -103,8 +103,8 @@ function removeNonBotElements() {
 	document.getElementById("guesses").style.display = "none";
 	document.getElementById("header-info-button").style.display = "none";
 	document.getElementById("header-settings-button").style.display = "none";
-	// document.getElementsByClassName("test")[0].disabled = true;
 	clearGrids();
+	update();
 
 	document.getElementsByClassName("current")[0].appendChild(
 		document.getElementById("hints")
@@ -299,6 +299,7 @@ function runBot(guess, bot_difficulty = "ultra") {
 	let testing_sample = getTestAnswers(TEST_SIZE, []);
 	let final_scores = []
 
+	document.getElementById("header-bot-button").disabled = true;
 	let iv = setInterval(function() {
 		clearGrids();
 

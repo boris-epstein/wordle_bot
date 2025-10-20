@@ -712,7 +712,8 @@ li:not(.likely, .others) {
 }
 
 #suggestions.testing {
-	min-height: 450px;
+	margin-top: 2rem;
+	height: 450px;
 }
 
 #test-settings {
