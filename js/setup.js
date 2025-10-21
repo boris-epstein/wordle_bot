@@ -9,12 +9,15 @@ ready(function() {
 
 	document.getElementById("word-length").addEventListener("input", function(e) {
 		localStorage.setItem("word_length" + bot.type, e.target.value);
+		resetPage();
 		createPage();
 	});
 
 	document.getElementById("max-guesses").addEventListener("input", function(e) {
 		localStorage.setItem("guesses" + bot.type, e.target.value);
-		createPage();
+		update();
+		// resetPage();
+		// createPage();
 	});
 
 	for (const answerlist_element of document.getElementsByClassName("answerlist")) {
