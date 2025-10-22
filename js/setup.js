@@ -222,7 +222,7 @@ function getPreferences() {
 	}
 
 	if (localStorage.getItem("prefer_luck")) {
-		prefer_skill = !(localStorage.getItem("prefer_luck"));
+		prefer_skill = localStorage.getItem("prefer_luck") == "false";
 		document.getElementById("prefer_luck_checkbox").checked = !prefer_skill;
 		// setWordbank();
 	}
