@@ -45,29 +45,30 @@
 		<div class="info screen" id="info-screen"></div>
 
 		<div class="settings screen display" id="settings-screen" style="display: none">
+			<button class="settings close" onclick="createSettingsPage();" "settings-close-button"></button>
+
 			<h3 class="mini-header">Choose Your Bot</h3>
 			<p class="description">Which game are we playing? I can play several.</p>
-				<p id="bot-selector">
-					Show me the best words for 
-					<select name="bot-type" id="bot-type">
-						<option value="Wordle" class = "Wordle">Wordle</option>
-						<option value="Antiwordle" class = "Antiwordle">Antiwordle</option>
-						<option value="Xordle" class = "Xordle">Xordle</option>
-						<option value="Fibble" class = "Fibble">Fibble</option>
-						<option value="Warmle" class = "Warmle">Warmle</option>
-						<option value="Hardle" class = "Hardle">Hardle</option>
-						<option value="Woodle" class = "Woodle">Woodle/Word500</option>
-						<option value="W-Peaks" class = "W-Peaks">Wordle Peaks</option>
-						<option value="Thirdle" class = "Thirdle">Thirdle</option>
-						<option value="Dordle" class = "Dordle">Dordle</option>
-						<option value="Quordle" class = "Quordle">Quordle</option>
-						<option value="Octordle" class = "Octordle">Octordle</option>
-						<option value="Spotle" class = "Spotle">Spotle</option>
-						<option value="Polygonle" class = "Polygonle">Polygonle</option>
-					</select>
-				</p>
+			<p id="bot-selector">
+				Show me the best words for 
+				<select name="bot-type" id="bot-type">
+					<option value="Wordle" class = "Wordle">Wordle</option>
+					<option value="Antiwordle" class = "Antiwordle">Antiwordle</option>
+					<option value="Xordle" class = "Xordle">Xordle</option>
+					<option value="Fibble" class = "Fibble">Fibble</option>
+					<option value="Warmle" class = "Warmle">Warmle</option>
+					<option value="Hardle" class = "Hardle">Hardle</option>
+					<option value="Woodle" class = "Woodle">Woodle/Word500</option>
+					<option value="W-Peaks" class = "W-Peaks">Wordle Peaks</option>
+					<option value="Thirdle" class = "Thirdle">Thirdle</option>
+					<option value="Dordle" class = "Dordle">Dordle</option>
+					<option value="Quordle" class = "Quordle">Quordle</option>
+					<option value="Octordle" class = "Octordle">Octordle</option>
+					<option value="Spotle" class = "Spotle">Spotle</option>
+					<option value="Polygonle" class = "Polygonle">Polygonle</option>
+				</select>
+			</p>
 
-			<button class="settings close" onclick="createSettingsPage();" "settings-close-button"></button>
 			<h3 class = "mini-header">Choose Your Wordlength</h3>
 			<p class="description">We don't have to stick with 5 letters.</p>
 			<p>
@@ -95,7 +96,7 @@
 				<p class="description">The only words I'll consider as answers are those that are on the guess list for official New York Times WordleBot.</p>
 
 				<input type="radio" class="answerlist" name="answerlist" id = "wordle_guesses">
-				<label for="wordle_guesses">NYT Wordle Guesses</label><br>
+				<label for="wordle_guesses">NYT Wordle Guesses</label>
 				<p class="description">I'll consider all guessable words from NYT Wordle dictionary as possible solutions.</p>
 
 				<input type="radio" class="answerlist" name="answerlist" id = "old_wordle_answers">
@@ -107,11 +108,11 @@
 				<p class="description">The only words I'll consider as answers are those that are on the old answer list for Wordle, or some of its variants.</p>
 
 				<input type="radio" class="answerlist" name="answerlist" id = "complete">
-				<label for="complete">All Possible Answers</label><br>
+				<label for="complete">All Possible Answers</label>
 				<p class="description">I'll consider all reasonable words as possible solutions.</p>
 
 				<input type="radio" class="answerlist" name="answerlist" id = "all_old">
-				<label for="all_old">Old Bot Guesses</label><br>
+				<label for="all_old">Old Bot Guesses</label>
 				<p class="description">I'll consider all guessable words from original bot dictionary as possible solutions.</p>
 			</div>
 
@@ -119,8 +120,8 @@
 			<p class="description">Tell me what words you'd like to be considered as possible guesses.</p>
 			<div>
 				<input type="checkbox" class="use_all_acceptable_checkbox" name="use_all_acceptable_checkbox" id = "use_all_acceptable_checkbox" checked = "checked">
-				<label for="use_all_acceptable_checkbox">Show all acceptable words</label><br>
-				<p class="description">I'll show all acceptable words in answers list, even if I can't suggest them as guesses.</p>
+				<label for="use_all_acceptable_checkbox">Show all acceptable words</label>
+				<p class="description">I'll show all acceptable words in unlikely list, even if I can't suggest them as guesses.</p>
 
 				<input type="radio" class="guesslist" name="guesslist" id = "guesslist_wordlebot_answers">
 				<label for="guesslist_wordlebot_answers">Filtered NYT WordleBot Answers</label>
@@ -135,7 +136,7 @@
 				<p class="description">The only words I'll consider as possible guesses are those that are on the guess list for official New York Times WordleBot.</p>
 
 				<input type="radio" class="guesslist" name="guesslist" id = "guesslist_wordle_guesses">
-				<label for="guesslist_wordle_guesses">NYT Wordle Guesses</label><br>
+				<label for="guesslist_wordle_guesses">NYT Wordle Guesses</label>
 				<p class="description">I'll consider all guessable words from NYT Wordle dictionary as possible guesses.</p>
 
 				<input type="radio" class="guesslist" name="guesslist" id = "guesslist_old_wordle_answers">
@@ -147,13 +148,21 @@
 				<p class="description">The only words I'll consider as possible guesses are those that are on the old answer list for Wordle, or some of its variants.</p>
 
 				<input type="radio" class="guesslist" name="guesslist" id = "guesslist_complete">
-				<label for="guesslist_complete">All Possible Answers</label><br>
+				<label for="guesslist_complete">All Possible Answers</label>
 				<p class="description">I'll consider all reasonable words as possible guesses.</p>
 
 				<input type="radio" class="guesslist" name="guesslist" id = "guesslist_all_old">
-				<label for="guesslist_all_old">Old Bot Guesses</label><br>
+				<label for="guesslist_all_old">Old Bot Guesses</label>
 				<p class="description">I'll consider all guessable words from original bot dictionary as possible guesses.</p>
 
+			</div>
+
+			<h3 class="mini-header">Advanced settings</h3>
+			<p class="description"></p>
+			<div>
+				<input type="checkbox" class="prefer_luck_checkbox" name="prefer_luck_checkbox" id = "prefer_luck_checkbox">
+				<label for="prefer_luck_checkbox">I'm Feeling Lucky</label>
+				<p class="description">If guesses have equal scores, I'll show possible answers first.</p>
 			</div>
 		</div>
 

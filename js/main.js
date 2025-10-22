@@ -1,6 +1,7 @@
 let word_length = 5;
 let answerlist = "wordlebot_answers";
 let guesslist = "guesslist_wordle_guesses";
+let prefer_skill = true;
 let difficulty = "easy";
 let polygonle_expert = ((difficulty != "ultra") && (document.getElementById("expert")?.checked))? true: false;
 let pairings = [];
@@ -10,10 +11,10 @@ let common, guessable, acceptable, bot;
 let best_trees = {};
 
 // word length constants
-const SMALLEST_WORD = 3, LARGEST_WORD = 11, DEFAULT_LENGTH = 5;
+const SMALLEST_WORD = 3, LARGEST_WORD = 11;
 // class constants to assign colors to tiles
 const CORRECT = "G", INCORRECT = "B", WRONG_SPOT = "Y", EMPTY = "X";
-const NOT_YET_TESTED = .999, INFINITY = 9999999;
+const INFINITY = 9999999;
 // list size constants
 
 // const word_banks = {wordlebot_answers: "official_answers", wordlebot_answers_with_ed: "official_answers_with_ed", wordlebot_guesses: "official_guesses", wordle_guesses: "official_words", old_wordle_answers: "old_answers", restricted: "common_words", complete: "all_common_words", all_old: "big_list"};
@@ -29,10 +30,11 @@ const FULL_TREES = (typeof best_trees_full != "undefined");
 const SHORT_TREES = (typeof best_trees_short != "undefined");
 let URLParams = new URLSearchParams(Array.from(new URLSearchParams(window.location.search), ([key, value]) => [key.toLowerCase(), value]));
 const CHECK_SIZE = Number(URLParams.get("check")) || 50;
+const MAX_CALCULATION_SIZE = Math.max(1000, CHECK_SIZE);
+const MAXIMUM = Math.max(100000, CHECK_SIZE);
 const MAX_TIME = Number(URLParams.get("time")) || 1000;
-const MAXIMUM = Number(URLParams.get("max")) || 100000;
 const LIST_LENGTH = Number(URLParams.get("list")) || 10;
-const SIZE_FACTOR = Number(URLParams.get("size")) || 5;
+// const SIZE_FACTOR = Number(URLParams.get("size")) || 5;
 const TEST_BOT_SIZE = Number(URLParams.get("bot_test")) || 500;
 const DEBUG = URLParams.has("debug");
 const PREVCALC = URLParams.has("prevcalc");
@@ -569,7 +571,7 @@ function getDataFor(guess, answers) {
 }
 
 function notFullyTested(guess) {
-	return !bot.hasScore() || guess.wrong == NOT_YET_TESTED;
+	return !bot.hasScore() || (guess.average == undefined);
 }
 
 function createListItem(word, data, rank, color, wrong_answers = "") {
@@ -1244,23 +1246,24 @@ function getBestGuesses(lists, guess_count = guessesMadeSoFar(), initial_guesses
 		best_guesses = guessesArePrecomputed(guess_count, guess_hash);
 
 		if (best_guesses) {
-			return best_guesses;
+			return sortByWrongThenAverage(best_guesses, lists.all);
 		}
 
 		if (guess_count == 0) {
 			best_guesses = getFirstGuesses();
-			if (best_guesses.length || lists.answers.length > 1000 + CHECK_SIZE) {
+			if (best_guesses.length) {
 				return best_guesses;
 			}
 		}
-		if (lists.answers.length > 1000 + CHECK_SIZE) {
-			best_guesses = getTempList(guess_list, lists.answers);
-			if (USE_TREES && main_calculations) {
+		if (lists.answers.length > MAX_CALCULATION_SIZE) {
+			if (USE_TREES && main_calculations && (guess_count != 0)) {
 				let best_guess = getBestTree(guess_count);
 				if (best_guess) {
-					if (!DEBUG) best_guesses = best_guesses.filter((a) => (a.word != best_guess.word));
-					best_guesses.unshift(best_guess);
-				}
+					if (DEBUG) {
+						best_guesses = getTempList(guess_list, lists.answers);
+						best_guesses.unshift(best_guess);
+					} else best_guesses = [best_guess];
+				} else best_guesses = getTempList(guess_list, lists.answers);
 			}
 			return best_guesses;
 		}
@@ -1360,9 +1363,6 @@ function getFirstGuesses() {
 	}
 	first_guesses = sortByWrongThenAverage(getBestOf(first_guesses).filter(a => a.word.length == word_length), common);
 
-	if (!first_guesses.length) {
-		// first_guesses = sortByWrongThenAverage(getTempList(guessable.slice(), common.slice()), common);
-	}
 	if (USE_TREES) {
 		let best_guess = getBestTree(0);
 		if (best_guess) {
@@ -1396,7 +1396,7 @@ function getTempList(guesses, answers) {
 	}
 
 	guesses = bot.reducesListBest(answers.slice(), guesses.slice(0, 100));
-	guesses = guesses.map(a => Object.assign ({}, {word: a.word, average: a.adjusted, wrong: NOT_YET_TESTED}));
+	guesses = guesses.map(a => Object.assign({}, {word: a.word}));
 	return guesses;
 }
 
@@ -1743,46 +1743,68 @@ function sortListByAverage(list) {
 
 function sortByWrongThenAverage(guesses, possible_words) {
 	guesses.sort(function(a,b) {
-		let a_wrong = a.wrong?? a.wrong_answers?.length?? 0;
-		let b_wrong = b.wrong?? b.wrong_answers?.length?? 0;
-		if (bot.isFor(ANTI)) {
+		if (a.average == undefined) {
+			if (b.average == undefined) {
+				return 0;
+			} else return 1;
+		} else if (b.average == undefined) return -1;
+		const a_wrong = a.wrong?? a.wrong_answers?.length?? 0;
+		const b_wrong = b.wrong?? b.wrong_answers?.length?? 0;
+		if (bot.type == ANTI) {
+			if (a_wrong < b_wrong) {
+				return 1;
+			}
+			if (a_wrong > b_wrong) {
+				return -1;
+			}
 			if (a.average < b.average) {
 				return 1;
 			}
 			if (a.average > b.average) {
 				return -1;
 			}
-			return (common.includes(a.word) - common.includes(b.word)) || ((a_wrong > b_wrong)? -1: ((a_wrong == b_wrong)? 0: 1));
-		}
-		if (a_wrong < b_wrong) {
-			return -1;
-		}
-		if (a_wrong > b_wrong) {
-			return 1;
-		}
-		if (a.average < b.average) {
-			return -1;
-		}
-		if (a.average > b.average) {
-			return 1;
-		}
-		if (difficulty == "ultra") {
-			return (common.includes(a.word) - common.includes(b.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
 		} else {
-			if (possible_words.includes(b.word)) {
-				if (possible_words.includes(a.word)) {
-					return (common.includes(a.word) - common.includes(b.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
+			if (a_wrong < b_wrong) {
+				return -1;
+			}
+			if (a_wrong > b_wrong) {
+				return 1;
+			}
+			if (a.average < b.average) {
+				return -1;
+			}
+			if (a.average > b.average) {
+				return 1;
+			}
+		}
+		if (prefer_skill || (bot.type == ANTI)) {
+			if (difficulty != "ultra") {
+				if (possible_words.includes(b.word)) {
+					if (!possible_words.includes(a.word)) {
+						return (common.includes(b.word) || common.includes(a.word))? -1: 1;
+					}
 				} else {
-					return (common.includes(a.word) || common.includes(b.word))? -1: 1;
+					if (possible_words.includes(a.word)) {
+						return (common.includes(a.word) || common.includes(b.word))? 1: -1;
+					} else {
+						return (common.includes(b.word)-common.includes(a.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
+					}
+				}
+			}
+			return (common.includes(a.word)-common.includes(b.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
+		}
+		if (difficulty != "ultra") {
+			if (possible_words.includes(b.word)) {
+				if (!possible_words.includes(a.word)) {
+					return (common.includes(b.word) || !common.includes(a.word))? 1: -1;
 				}
 			} else {
 				if (possible_words.includes(a.word)) {
-					return (common.includes(a.word) || common.includes(b.word))? 1: -1;
-				} else {
-					return (common.includes(b.word) - common.includes(a.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
+					return (common.includes(a.word) || !common.includes(b.word))? -1: 1;
 				}
 			}
 		}
+		return (common.includes(b.word)-common.includes(a.word)) || ((a.word > b.word)? 1: ((a.word == b.word)? 0: -1));
 	});
 
 	return guesses;

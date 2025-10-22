@@ -7,6 +7,12 @@ ready(function() {
 		createPage();
 	});
 
+	document.getElementById("prefer_luck_checkbox").addEventListener("input", function(e) {
+		localStorage.setItem("prefer_luck", e.target.checked);
+		prefer_skill = !e.target.checked;
+		update();
+	});
+
 	document.getElementById("word-length").addEventListener("input", function(e) {
 		localStorage.setItem("word_length" + bot.type, e.target.value);
 		resetPage();
@@ -215,6 +221,12 @@ function getPreferences() {
 		setBotMode(WORDLE);
 	}
 
+	if (localStorage.getItem("prefer_luck")) {
+		prefer_skill = !(localStorage.getItem("prefer_luck"));
+		document.getElementById("prefer_luck_checkbox").checked = !prefer_skill;
+		// setWordbank();
+	}
+
 	if (localStorage.getItem("answerlist")) {
 		answerlist = localStorage.getItem("answerlist");
 		document.getElementById(answerlist).checked = true;
@@ -388,7 +400,7 @@ function createWordLengthSelector() {
 	let options = "";
 	for (let i = SMALLEST_WORD; i <= LARGEST_WORD; i++) {
 		let selected = "";
-		if (i == 5) selected = `selected = "selected"`;
+		if (i == word_length) selected = `selected = "selected"`;
 		options += `<option value="` + i + `" ` + selected +`>` + i + `</option>`;
 	}
 
@@ -403,7 +415,7 @@ function createWordLengthSelector() {
 	}
 
 	select_length.innerHTML = options;
-	let new_word_length = localStorage.getItem("word_length"+ bot.type);
+	let new_word_length = localStorage.getItem("word_length" + bot.type);
 	if (new_word_length && new_word_length >= SMALLEST_WORD || bot.isFor(THIRDLE)) {
 		select_length.value = new_word_length;
 	}
