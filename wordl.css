@@ -310,6 +310,8 @@ button:hover, .tile:hover, .increment:hover {
 	margin: auto;
 	position: absolute;
 	overflow: hidden;
+	overflow-y: scroll;
+	height: 100%;
 	text-align: center;
 	background: var(--off-white);
 	box-shadow: var(--gray-color) 0 0 0 1px;
