@@ -682,6 +682,10 @@ function getHardMode() {
 			let expert_slider = createElement('span', '', 'slider round');
 			let expert_checkbox = createElement('input', '', '', 'expert_mode');
 			expert_checkbox.setAttribute('type', 'checkbox');
+			if (difficulty == "ultra") {
+				expert_checkbox.checked = true;
+				expert_checkbox.disabled = true;
+			}
 
 			expert_container.append(expert_checkbox);
 			expert_container.append(expert_slider);

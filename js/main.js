@@ -522,7 +522,7 @@ function updateLists(lists, best_guesses) {
 }
 
 function timeToShowFinalOptions(answers) {
-	return bot.getAnswerListLength(answers) <= 2 && !bot.isFor(ANTI);
+	return bot.getCount() == 1 && (bot.type != ANTI) && bot.getAnswerListLength(answers) <= 2;
 }
 
 // creates and returns the top 10 list of suggestions
