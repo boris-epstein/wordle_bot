@@ -135,3 +135,11 @@ class WordleGame:
                 break
         if not self.solved:
             print(f"Game over. The secret word was '{self.secret_word}'.")
+
+
+
+if __name__ == '__main__':
+    guess_list = ['bride', 'apple', 'crack', 'plays']
+    # guess_list = load_words_from_js(guesses, variable_name="official_guesses")
+    game = WordleGame(word_list=guess_list, secret_word='hopes')
+    game.play()

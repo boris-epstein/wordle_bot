@@ -1,5 +1,5 @@
 from wordle import WordleGame
-from bot import NaiveBot
+from bot import NaiveBot, HeuristicWordleBot
 from simulator import WordleSimulator
 
 
@@ -29,12 +29,29 @@ def load_words_from_js(file_path, variable_name="official_guesses"):
 
 if __name__ == '__main__':
     # answers = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Answers_with_ED.js'
-    # guesses = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Guesses.js'
     # answer_list = load_words_from_js(answers, variable_name="official_answers_with_ed")
-    # guess_list = load_words_from_js(guesses, variable_name="official_guesses")
-    guess_list = ['bride', 'apple', 'crack', 'plays']
-    answer_list = ['bride', 'apple']
-    bot = NaiveBot(guess_list=guess_list, answer_list=answer_list)
+    
+    answers = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Answers.js'
+    answer_list = load_words_from_js(answers, variable_name="official_answers")
+    
+    guesses = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Words.js'
+    guess_list = load_words_from_js(guesses, variable_name="official_words")
+    limit = 60
+    print(len(guess_list))
+    print(len(answer_list))
+    # guess_list = ['bride', 'apple', 'crack', 'plays']
+    # answer_list = ['bride', 'apple']
+    bot = NaiveBot(guess_list=guess_list, answer_list=answer_list[:limit])
     simulator = WordleSimulator(bot = bot)
-    results = simulator.evaluate_all(answer_list)
-    print(results)
+    results = simulator.evaluate_all(answer_list[:limit])
+    print(results[0], results[1])
+    
+    bot2 = HeuristicWordleBot(guess_list=guess_list, answer_list=answer_list[:limit])
+    simulator2 = WordleSimulator(bot = bot2)
+    results2 = simulator2.evaluate_all(answer_list[:limit])
+    print(results2[0], results2[1])
+    
+    # guess_list = ['bride', 'apple', 'crack', 'plays']
+    # guess_list = load_words_from_js(guesses, variable_name="official_guesses")
+    # game = WordleGame(word_list=guess_list, secret_word='chalk')
+    # game.play()

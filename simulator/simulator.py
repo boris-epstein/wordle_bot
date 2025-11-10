@@ -16,6 +16,7 @@ class WordleSimulator:
         
         history = []
         for guess_num in range(1, self.max_guesses+1):
+            # print(guess_num)
             guess = self.bot.next_guess(guess_num, history)
             if guess == wordle_game.secret_word:
                 return guess_num  # win in guess_num attempts
@@ -27,7 +28,11 @@ class WordleSimulator:
         results = {}
         wins = 0
         total_guesses = 0
+        i=0
         for secret in secrets_list:
+            if i%10 == 0:
+                print(f'{i} out of {len(secrets_list)} words.')
+            i+=1
             game = WordleGame(word_list=self.bot.guess_list, secret_word=secret, max_attempts=self.max_guesses)
             attempts = self.play_one(game)
             results[secret] = attempts  # store None if failed, or number of guesses if solved
