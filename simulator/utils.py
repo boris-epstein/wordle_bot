@@ -3,6 +3,7 @@ import re
 import ast
 from functools import cache
 from constants import Feedback
+import torch
 
 
 
@@ -72,6 +73,28 @@ def cache_all_feedback(guess_list: List[str], answer_list: List[str])-> Dict[Tup
             feedback[guess, answer] = evaluate_guess(guess, answer)
             
     return feedback
+
+def build_word_features(word_list: List[str]) -> torch.Tensor:
+    """
+    Build a [num_words, 26, 5] tensor encoding each word.
+    word_features[w, l, p] = 1 if word_list[w][p] == chr(ord('a') + l), else 0.
+    Assumes 5-letter lowercase words.
+    """
+    num_words = len(word_list)
+    word_len = len(word_list[0])
+    assert all(len(w) == word_len for w in word_list), "All words must have the same length"
+    assert word_len == 5, "This helper assumes 5-letter Wordle words"
+
+    features = torch.zeros(num_words, 26, word_len, dtype=torch.float32)
+    for w_idx, word in enumerate(word_list):
+        for p, ch in enumerate(word):
+            l = ord(ch) - ord("a")
+            if 0 <= l < 26:
+                features[w_idx, l, p] = 1.0
+            else:
+                raise ValueError(f"Non a–z character '{ch}' in word '{word}'")
+    return features
+
 
 if __name__ == '__main__':
     

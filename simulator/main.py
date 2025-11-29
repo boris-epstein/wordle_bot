@@ -1,57 +1,44 @@
-from wordle import WordleGame
-from bot import NaiveBot, HeuristicWordleBot
-from simulator import WordleSimulator
 
 
-import re
-import ast
+from wordle_env import WordleEnv
+from utils import load_words_from_js, build_word_features
+from policy import WordleMLPPolicy
 
-def load_words_from_js(file_path, variable_name="official_guesses"):
-    """
-    Reads a .js file and extracts the list assigned to a given variable.
-    Assumes the variable assignment is of the form: const variable_name = ["WORD1", "WORD2", ...];
-    """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-    
-    # Match the variable assignment using regex
-    pattern = rf"{variable_name}\s*=\s*(\[[^\]]*\])"
-    match = re.search(pattern, content)
-    
-    if not match:
-        raise ValueError(f"Could not find array assigned to {variable_name}")
-    
-    array_str = match.group(1)
+import torch
 
-    # Convert JavaScript array to Python list safely
-    word_list = ast.literal_eval(array_str.replace("'", '"'))  # Ensure valid JSON-style quotes
-    return [word.lower() for word in word_list]  # Normalize to lowercase for consistency
+# 1. Build word list (whatever you’re already using)
+guesses_path = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Guesses.js'
+guess_list = load_words_from_js(guesses_path, variable_name='official_guesses')
+word_list = guess_list.copy()
+# word_list = load_words_from_js(guesses_path, variable_name="official_words")
+# word_list = ["crane", "slate", "trace", "spite", "tried"]  # toy example
 
-if __name__ == '__main__':
-    # answers = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Answers_with_ED.js'
-    # answer_list = load_words_from_js(answers, variable_name="official_answers_with_ed")
-    
-    answers = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Answers.js'
-    answer_list = load_words_from_js(answers, variable_name="official_answers")
-    
-    guesses = '/Users/be2297/Documents/wordle_bot/WordLists/NYT/Words.js'
-    guess_list = load_words_from_js(guesses, variable_name="official_words")
-    limit = 60
-    print(len(guess_list))
-    print(len(answer_list))
-    # guess_list = ['bride', 'apple', 'crack', 'plays']
-    # answer_list = ['bride', 'apple']
-    bot = NaiveBot(guess_list=guess_list, answer_list=answer_list[:limit])
-    simulator = WordleSimulator(bot = bot)
-    results = simulator.evaluate_all(answer_list[:limit])
-    print(results[0], results[1])
-    
-    bot2 = HeuristicWordleBot(guess_list=guess_list, answer_list=answer_list[:limit])
-    simulator2 = WordleSimulator(bot = bot2)
-    results2 = simulator2.evaluate_all(answer_list[:limit])
-    print(results2[0], results2[1])
-    
-    # guess_list = ['bride', 'apple', 'crack', 'plays']
-    # guess_list = load_words_from_js(guesses, variable_name="official_guesses")
-    # game = WordleGame(word_list=guess_list, secret_word='chalk')
-    # game.play()
+# 2. Build env
+env = WordleEnv(word_list=word_list, solution_list=word_list, max_guesses=6)
+
+# 3. Precompute word encodings
+word_features = build_word_features(word_list)  # [num_words, 26, 5]
+
+# 4. Create policy
+policy = WordleMLPPolicy(word_features=word_features, max_guesses=env.max_guesses)
+
+# 5. Run one episode with random policy actions from the network
+obs, info = env.reset()
+done = False
+
+while not done:
+    num_guesses = info["num_guesses"]
+
+    obs_tensor = torch.tensor(obs, dtype=torch.float32)       # [26, 5, 3]
+    guess_tensor = torch.tensor(num_guesses, dtype=torch.long)
+
+    action, log_prob = policy.act(obs_tensor, guess_tensor, greedy=False)
+    action_idx = action.item()
+
+    obs, reward, terminated, truncated, info = env.step(action_idx)
+    # env.render()
+
+    done = terminated or truncated
+
+env.render()
+print("Reward:", reward)
