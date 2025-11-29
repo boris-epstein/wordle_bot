@@ -13,7 +13,7 @@ from policy import WordleMLPPolicy
 
 def make_env_and_policy(
     guesses_js_path: str,
-    variable_name: str = "official_words",
+    variable_name: str = "official_guesses",
     max_guesses: int = 6,
     checkpoint_path: Optional[str] = None,
     hidden_dim: int = 256,
